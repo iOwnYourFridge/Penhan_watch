@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pyramid Clock</title>
+<style>
+:root{color-scheme:light;--bg:#f6f4ef;--fg:#1d1d1b;--cell:#fff;--line:#6b665b;--hour:#d9552b;--min:#1f7a8c;--onfg:#fff}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#161513;--fg:#f1ede4;--cell:#23211e;--line:#a09a8c;--hour:#ef7a4d;--min:#4fc3d9;--onfg:#161513}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Georgia,'Times New Roman',serif;display:flex;align-items:center;justify-content:center;padding:12px}
+svg{width:min(440px,94vw);height:auto;display:block}
+.p{fill:var(--cell);stroke:var(--line);stroke-width:2;stroke-linejoin:round;transition:fill .2s}
+.p.on.h{fill:var(--hour)}
+.p.on.m{fill:var(--min)}
+.t{font-family:Georgia,serif;font-size:22px;text-anchor:middle;dominant-baseline:central;fill:var(--fg)}
+.t.on{fill:var(--onfg);font-weight:bold}
+</style></head><body>
+<svg id="s" viewBox="-4 -4 368 320"></svg>
+<script>
+var W=360,H=312,RH=52;
+function calc(t){var h=Math.floor(t/60),m=t%60,h12=h%12;
+return {pm:h>=12?1:0,half:h12>=6?1:0,hr:h12%6,a:Math.floor(m/20),b:Math.floor(m%20/5),c:m%5}}
+function draw(){var n=new Date(),v=calc(n.getHours()*60+n.getMinutes());
+var rows=[
+ {l:[""],on:v.pm?0:-1,k:"h"},
+ {l:["0","6"],on:v.half,k:"h"},
+ {l:[0,20,40],on:v.a,k:"m"},
+ {l:[0,5,10,15],on:v.b,k:"m"},
+ {l:[0,1,2,3,4],on:v.c,k:"m"},
+ {l:[0,1,2,3,4,5],on:v.hr,k:"h"}];
+var out="";
+rows.forEach(function(r,i){var k=r.l.length,y0=i*RH,y1=(i+1)*RH;
+var hw0=(W/2)*y0/H,hw1=(W/2)*y1/H,L0=W/2-hw0,L1=W/2-hw1,w0=2*hw0/k,w1=2*hw1/k;
+r.l.forEach(function(x,j){var on=j===r.on;
+var xa=L0+j*w0,xb=L0+(j+1)*w0,xc=L1+(j+1)*w1,xd=L1+j*w1;
+out+='<polygon class="p '+r.k+(on?' on':'')+'" points="'+xa+','+y0+' '+xb+','+y0+' '+xc+','+y1+' '+xd+','+y1+'"/>';
+if(x!=="")out+='<text class="t'+(on?' on':'')+'" x="'+((xa+xb+xc+xd)/4)+'" y="'+(y0+RH*0.55)+'">'+x+'</text>'})});
+document.getElementById("s").innerHTML=out}
+setInterval(draw,1000);draw();
+</script></body></html>
